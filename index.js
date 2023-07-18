@@ -9,10 +9,10 @@ const PORT = 8000;
 
 app.use(express.json());
 
-app.use("/categorie", categorieRouter);
-app.use("/article", articleRouter);
-app.use("/entree", entreeRouter);
-app.use("/sortie", sortieRouter);
+app.use("/api/categorie", categorieRouter);
+app.use("/api/article", articleRouter);
+app.use("/api/entree", entreeRouter);
+app.use("/api/sortie", sortieRouter);
 
 
 
