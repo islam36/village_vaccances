@@ -39,7 +39,6 @@ function App() {
         <Routes>
           <Route path="/stock/*" element={<Stock/>} />
           <Route path="/reservations/*" element={<Reservation/>} />
-          <Route path="/" element={<Stock />} />
         </Routes>
       </BrowserRouter>
     </>
