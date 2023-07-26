@@ -21,9 +21,10 @@ exports.addEntree = async (req, res) => {
       date: new Date(req.body.date),
       fournisseur: req.body.fournisseur,
       prix_unitaire: req.body.prix_unitaire,
+      cout_supp: req.body.cout_supp,
       quantite: req.body.quantite,
       remarque: req.body.remarque,
-      prix_total: req.body.prix_total
+      prix_total: req.body.prix_unitaire * req.body.quantite + req.body.cout_supp
     },
     include: {
       article: true,

@@ -34,6 +34,7 @@ model Entree {
   prix_unitaire Float
   fournisseur   String
   remarque      String   @default("")
+  cout_supp     Float
   prix_total    Float
   article       Article  @relation(fields: [article_code], references: [code])
 }

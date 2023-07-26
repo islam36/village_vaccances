@@ -3,6 +3,7 @@ import Paper from "@mui/material/Paper";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import Button from "@mui/material/Button";
 import Articles from "./Articles";
+import Entrees from "./Entrees";
 import { useNavigate, Routes, Route } from "react-router-dom";
 
 const links = [
@@ -14,7 +15,7 @@ const links = [
   {
     title: "entrées",
     url: "entrees",
-    element: <div>entrees</div>,
+    element: <Entrees />,
   },
   {
     title: "sorties",

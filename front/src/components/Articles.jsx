@@ -113,7 +113,7 @@ function AddDialog({ open, setOpen, handleAdd, categories }) {
 
       <DialogActions>
         <Button onClick={handleCancel}>annuler</Button>
-        <Button onClick={handleAdd(form)}>ajouter</Button>
+        <Button onClick={handleAdd(form, setForm)}>ajouter</Button>
       </DialogActions>
     </Dialog>
   );
@@ -235,8 +235,12 @@ export default function Articles() {
     setAddDialogOpen(true);
   };
 
-  const handleAddArticle = (newArticle) => async () => {
+  const handleAddArticle = (newArticle, setForm) => async () => {
     try {
+      if(newArticle.nom == "") {
+        throw new Error("Il faut remplir tous les champs")
+      }
+
       console.log("new article", newArticle);
       const request = await fetch(`${BACKEND_URL}/article`, {
         method: "POST",
@@ -254,6 +258,11 @@ export default function Articles() {
       ]);
 
       setAddDialogOpen(false);
+      setForm({
+        nom: "",
+        stock: 0,
+        categorie_code: 1,
+      });
     } catch (err) {
       console.log(err);
       setErrorText(err.message);
