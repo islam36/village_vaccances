@@ -17,13 +17,93 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 
-function CustomToolBar({ onClick }) {
+function Filters({ articles, onClick, reset }) {
+  const [form, setForm] = useState({
+    article: Number.MAX_VALUE,
+    debut: null,
+    fin: null,
+  });
+
+  const onChange = (e) => {
+    setForm((old) => ({
+      ...old,
+      [e.target.name]: e.target.value,
+    }));
+
+    console.log("filter change:", form);
+  };
+
+
+  const resetForm = (e) => {
+    reset();
+
+    setForm({
+      article: Number.MAX_VALUE,
+      debut: null,
+      fin: null,
+    })
+  }
+
+  return (
+    <Stack direction="row" sx={{ gap: "15px" }} >
+      <TextField
+        label="article"
+        name="article"
+        variant="filled"
+        value={form.article}
+        onChange={onChange}
+        select
+      >
+        <MenuItem key="" value={Number.MAX_VALUE}>{"<vide>"}</MenuItem>
+
+        {articles.map((item) => (
+          <MenuItem key={item.code} value={item.code}>
+            {item.nom}
+          </MenuItem>
+        ))}
+      </TextField>
+
+     
+
+      <TextField
+        label="date debut"
+        name="debut"
+        variant="filled"
+        value={form.debut || ""}
+        onChange={onChange}
+        type="date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+
+      <TextField
+        label="date fin"
+        name="fin"
+        variant="filled"
+        value={form.fin || ""}
+        onChange={onChange}
+        type="date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+
+      <Button onClick={onClick(form)} >filter</Button>
+      <Button onClick={resetForm} >vider</Button>
+    </Stack>
+  );
+}
+
+function CustomToolBar({ onClick, articles, handleFilter, handleReset }) {
   return (
     <GridToolbarContainer>
       <GridToolbarExport />
       <Button startIcon={<AddIcon />} onClick={onClick}>
         ajouter
       </Button>
+
+      <Filters articles={articles} onClick={handleFilter} reset={handleReset} />
     </GridToolbarContainer>
   );
 }
@@ -62,13 +142,14 @@ function AddDialog({ open, setOpen, articles, handleAddEntree }) {
   const onChange = (e) => {
     if (numberValues.includes(e.target.name) && e.target.value < 0) return;
 
-    const newValue = numberValues.includes(e.target.name) ? parseFloat(e.target.value) : e.target.value;
+    const newValue = numberValues.includes(e.target.name)
+      ? parseFloat(e.target.value)
+      : e.target.value;
 
     setForm((old) => ({
       ...old,
-      [e.target.name]:  newValue,
+      [e.target.name]: newValue,
     }));
-
   };
 
   const handleCancel = () => {
@@ -162,7 +243,7 @@ function AddDialog({ open, setOpen, articles, handleAddEntree }) {
 
       <DialogActions>
         <Button onClick={handleCancel}>annuler</Button>
-        <Button onClick={handleAddEntree(form, setForm)} >ajouter</Button>
+        <Button onClick={handleAddEntree(form, setForm)}>ajouter</Button>
       </DialogActions>
     </Dialog>
   );
@@ -210,7 +291,7 @@ export default function Entrees() {
       align: "left",
       headerAlign: "left",
       valueGetter: (params) => new Date(params.row.date),
-      renderCell: (params) => <>{params.row.date.toString().slice(0, 10)}</>
+      renderCell: (params) => <>{params.row.date.toString().slice(0, 10)}</>,
     },
     {
       field: "quantite",
@@ -302,9 +383,9 @@ export default function Entrees() {
         prix_unitaire: 0,
       };
 
-      Object.keys(values).forEach(key => {
-        if(form[key] === values[key]) {
-            throw new Error("Il faut remplir tout les champs");
+      Object.keys(values).forEach((key) => {
+        if (form[key] === values[key]) {
+          throw new Error("Il faut remplir tout les champs");
         }
       });
 
@@ -330,9 +411,8 @@ export default function Entrees() {
         prix_unitaire: 0,
         cout_supp: 0,
         fournisseur: "",
-        remarque: "",        
+        remarque: "",
       });
-
     } catch (err) {
       console.log(err);
       setErrorText(err.message);
@@ -343,6 +423,35 @@ export default function Entrees() {
   const handleClickAddBtn = () => {
     setAddDialogOpen(true);
   };
+
+  const handleReset = (e) => {
+    setDisplayedRows(rows);
+  }
+
+
+  const handleFilter = (form) => (e) => {
+    const filterRows = rows.filter(row => {
+      let article = true, debut = true, fin = true;
+
+      if(form.article !== Number.MAX_VALUE) {
+        article = form.article === row.article_code;
+      }
+
+      if(form.debut != null) {
+        debut = row.date >= form.debut;
+      } 
+
+      if(form.fin != null) {
+        fin = row.date <= form.fin;
+      }
+
+
+      return article && debut && fin;
+    });
+
+    console.log("filtered rows:", filterRows);
+    setDisplayedRows(filterRows);
+  }
 
   useEffect(() => {
     getAllArticles();
@@ -383,7 +492,7 @@ export default function Entrees() {
           toolbarExportLabel: "Exporter",
           toolbarExportCSV: "Télécharger CSV",
           toolbarExportPrint: "Imprimer",
-          noRowsLabel: 'aucune entrée',
+          noRowsLabel: "aucune entrée",
         }}
         slots={{
           toolbar: CustomToolBar,
@@ -391,6 +500,9 @@ export default function Entrees() {
         slotProps={{
           toolbar: {
             onClick: handleClickAddBtn,
+            articles: articles,
+            handleFilter,
+            handleReset,
           },
         }}
       />
