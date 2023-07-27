@@ -86,7 +86,7 @@ function AddDialog({ open, setOpen, articles, handleAddEntree }) {
 
   return (
     <Dialog open={open}>
-      <DialogTitle>Ajouter une nouvelle entrées</DialogTitle>
+      <DialogTitle>Ajouter une nouvelle entrée</DialogTitle>
       <DialogContent>
         <Stack direction="column" sx={{ gap: "20px" }}>
           <TextField
@@ -383,6 +383,7 @@ export default function Entrees() {
           toolbarExportLabel: "Exporter",
           toolbarExportCSV: "Télécharger CSV",
           toolbarExportPrint: "Imprimer",
+          noRowsLabel: 'aucune entrée',
         }}
         slots={{
           toolbar: CustomToolBar,

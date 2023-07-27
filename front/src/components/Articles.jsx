@@ -152,7 +152,7 @@ export default function Articles() {
       headerName: "code",
       editable: false,
       type: "number",
-      width: 200,
+      width: 100,
       align: "left",
       headerAlign: "left",
     },
@@ -185,24 +185,24 @@ export default function Articles() {
       headerName: "stock",
       editable: false,
       type: "number",
-      width: 200,
+      width: 100,
       align: "left",
       headerAlign: "left",
     },
-    {
-      field: "actions",
-      type: "actions",
-      width: 200,
-      headerName: "opérations",
-      getActions: (params) => [
-        <GridActionsCellItem
-          key={"supprimer"}
-          icon={<DeleteIcon />}
-          label="supprimer"
-          onClick={deleteArticle(params.id)}
-        />,
-      ],
-    },
+    // {
+    //   field: "actions",
+    //   type: "actions",
+    //   width: 100,
+    //   headerName: "opérations",
+    //   getActions: (params) => [
+    //     <GridActionsCellItem
+    //       key={"supprimer"}
+    //       icon={<DeleteIcon />}
+    //       label="supprimer"
+    //       onClick={deleteArticle(params.id)}
+    //     />,
+    //   ],
+    // },
   ];
 
   async function getAllCategories() {
@@ -309,6 +309,7 @@ export default function Articles() {
           toolbarExportLabel: "Exporter",
           toolbarExportCSV: "Télécharger CSV",
           toolbarExportPrint: "Imprimer",
+          noRowsLabel: 'aucun article',
         }}
         slots={{
           toolbar: CustomToolBar,

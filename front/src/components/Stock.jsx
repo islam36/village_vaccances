@@ -4,6 +4,7 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 import Button from "@mui/material/Button";
 import Articles from "./Articles";
 import Entrees from "./Entrees";
+import Sorties from "./Sorties";
 import { useNavigate, Routes, Route } from "react-router-dom";
 
 const links = [
@@ -20,7 +21,7 @@ const links = [
   {
     title: "sorties",
     url: "sorties",
-    element: <div>sorties</div>,
+    element: <Sorties />,
   },
 ];
 
