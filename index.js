@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const categorieRouter = require("./routes/categorie")
 const articleRouter = require("./routes/article")
 const entreeRouter = require("./routes/entree")
@@ -21,13 +22,22 @@ app.use("/api/categorie", categorieRouter);
 app.use("/api/article", articleRouter);
 app.use("/api/entree", entreeRouter);
 app.use("/api/sortie", sortieRouter);
-
-
-
-
-app.get("/", async (req, res) => {
-    res.send("hello world");
+app.use("/api/close", (req, res, next) => {
+    process.exit(1);
 })
+
+app.use(express.static(path.join("front", "dist")));
+
+app.use((req, res, next) => {
+    res.sendFile(path.join(__dirname, "front", "dist", "index.html"));
+})
+
+
+
+
+// app.get("/", async (req, res) => {
+//     res.send("hello world");
+// })
 
 app.listen(PORT, () => {
     console.log(`server is running at http://localhost:${PORT}`);

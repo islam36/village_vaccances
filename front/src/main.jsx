@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import CssBaseline from "@mui/material/CssBaseline"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import "./main.css"
+import "./main.css";
 
 const theme = createTheme()
 
