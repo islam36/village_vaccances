@@ -4,6 +4,8 @@ const categorieRouter = require("./routes/categorie")
 const articleRouter = require("./routes/article")
 const entreeRouter = require("./routes/entree")
 const sortieRouter = require("./routes/sortie")
+const chaletRouter = require("./routes/chalet")
+const reservationRouter = require("./routes/reservation")
 const cors = require("cors")
 
 const app = express();
@@ -22,6 +24,8 @@ app.use("/api/categorie", categorieRouter);
 app.use("/api/article", articleRouter);
 app.use("/api/entree", entreeRouter);
 app.use("/api/sortie", sortieRouter);
+app.use("/api/chalet", chaletRouter);
+app.use("/api/reservation", reservationRouter);
 app.use("/api/close", (req, res, next) => {
     process.exit(1);
 })

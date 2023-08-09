@@ -1,11 +1,9 @@
-import { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Stock from "./components/Stock";
 import Reservation from "./components/Reservation";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import { BACKEND_URL } from "./util/constants"
 
 
 const links = [
@@ -21,17 +19,6 @@ const links = [
 
 function App() {
   
-  useEffect(() => {
-    const sendCloseRequest = async (e) => {
-      await fetch(`${BACKEND_URL}/close`); // Replace with your server endpoint
-    };
-
-    window.onbeforeunload = sendCloseRequest;
-
-    return () => {
-      window.onbeforeunload = null;
-    };
-  }, []);
 
   return (
     <>

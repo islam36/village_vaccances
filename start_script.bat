@@ -1,7 +1,7 @@
 echo off
 
-start /B cmd node index.js
+start /B cmd /c "node index.js"
 
-start  /B "villange vaccances" "http://localhost:8000"
+start /B "villange vaccances" "http://localhost:8000"
 
 exit

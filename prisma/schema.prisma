@@ -47,3 +47,32 @@ model Sortie {
   remarque     String   @default("")
   article      Article  @relation(fields: [article_code], references: [code])
 }
+
+model Chalet {
+  numero      String        @id
+  type        String
+  cout        Float
+  Reservation Reservation[]
+}
+
+model Reservation {
+  code        Int      @id @default(autoincrement())
+  date_debut  DateTime
+  date_fin    DateTime
+  cout        Float
+  status      String
+  remarque    String
+  chalet_code String
+  chalet      Chalet   @relation(fields: [chalet_code], references: [numero])
+  Client      Client[]
+}
+
+model Client {
+  code         Int         @id @default(autoincrement())
+  nom          String
+  prenom       String
+  type_piece   String
+  numero_piece String
+  code_res     Int
+  reservation  Reservation @relation(fields: [code_res], references: [code])
+}
