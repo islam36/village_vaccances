@@ -36,3 +36,10 @@ exports.addEntree = async (req, res) => {
 };
 
 
+exports.deleteEntree = async (req, res) => {
+  await prisma.$executeRaw`delete from entree where entree_code = ${req.params.code}`;
+
+  response(res, "entrée supprimée", null);
+}
+
+

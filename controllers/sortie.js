@@ -32,3 +32,10 @@ exports.addSortie = async (req, res) => {
 
     response(res, "sortie créée", sortie);
 }
+
+
+exports.deleteSortie = async (req, res) => {
+    await prisma.$executeRaw`delete from sortie where sortie_code = ${req.params.code}`;
+  
+    response(res, "sortie supprimée", null);
+  }

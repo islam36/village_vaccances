@@ -5,6 +5,7 @@ import {
   GridActionsCellItem,
 } from "@mui/x-data-grid";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete"
 import { useState, useEffect } from "react";
 import { BACKEND_URL } from "../util/constants";
 import Button from "@mui/material/Button";
@@ -249,6 +250,25 @@ function AddDialog({ open, setOpen, articles, handleAddEntree }) {
   );
 }
 
+function ConfirmDeleteDialog({ open, setOpen, handleDelete }) {
+  const close = () => {
+    setOpen(false);
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent>
+        <DialogContentText> Etes-vous sûr de vouloir supprimer cette entrée ?</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={close}>annuler</Button>
+        <Button onClick={handleDelete}>supprimer</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export default function Entrees() {
   const [articles, setArticles] = useState([]);
   const [rows, setRows] = useState([]);
@@ -256,6 +276,8 @@ export default function Entrees() {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [deleteEntreeCode, setDeleteEntreeCode] = useState(null);
 
   const columns = [
     {
@@ -347,7 +369,45 @@ export default function Entrees() {
       align: "left",
       headerAlign: "left",
     },
+    {
+      field: "actions",
+      type: "actions",
+      width: 100,
+      headerName: "opérations",
+      getActions: (params) => [
+        <GridActionsCellItem
+          key={"supprimer"}
+          icon={<DeleteIcon />}
+          label="supprimer"
+          onClick={() => {
+            setDeleteEntreeCode(params.id);
+            setConfirmDialogOpen(true);
+          }}
+        />,
+      ],
+    },
   ];
+
+  const deleteEntree = async () => {
+    try {
+      const request = await fetch(`${BACKEND_URL}/entree/${deleteEntreeCode}`, {
+        method: "DELETE",
+      });
+
+      if (!request.ok) {
+        throw new Error("Il y avait une erreur!");
+      }
+
+      const response = await request.json();
+      console.log("delete response", response);
+      getAllEntrees();
+      setConfirmDialogOpen(false);
+    } catch (err) {
+      console.log(err);
+      setErrorText(err.message);
+      setErrorDialogOpen(true);
+    }
+  };
 
   async function getAllArticles() {
     try {
@@ -471,6 +531,12 @@ export default function Entrees() {
         setOpen={setAddDialogOpen}
         articles={articles}
         handleAddEntree={handleAddEntree}
+      />
+
+      <ConfirmDeleteDialog
+        open={confirmDialogOpen}
+        setOpen={setConfirmDialogOpen}
+        handleDelete={deleteEntree}
       />
 
       <DataGrid
