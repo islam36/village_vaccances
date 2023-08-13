@@ -37,6 +37,15 @@ exports.addEntree = async (req, res) => {
 
 
 exports.deleteEntree = async (req, res) => {
+
+  const entree = await prisma.entree.findFirst({
+    where: {
+      entree_code: parseInt(req.params.code)
+    }
+  });
+
+
+  await prisma.$executeRaw`update Article set stock = stock - ${entree.quantite} where code = ${entree.article_code}`;
   await prisma.$executeRaw`delete from entree where entree_code = ${req.params.code}`;
 
   response(res, "entrée supprimée", null);

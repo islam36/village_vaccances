@@ -35,6 +35,14 @@ exports.addSortie = async (req, res) => {
 
 
 exports.deleteSortie = async (req, res) => {
+    const sortie = await prisma.sortie.findFirst({
+        where: {
+          sortie_code: parseInt(req.params.code)
+        }
+      });
+    
+    
+    await prisma.$executeRaw`update Article set stock = stock + ${sortie.quantite} where code = ${sortie.article_code}`;
     await prisma.$executeRaw`delete from sortie where sortie_code = ${req.params.code}`;
   
     response(res, "sortie supprimée", null);

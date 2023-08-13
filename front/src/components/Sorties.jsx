@@ -5,6 +5,7 @@ import {
   GridActionsCellItem,
 } from "@mui/x-data-grid";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useState, useEffect } from "react";
 import { BACKEND_URL } from "../util/constants";
 import Button from "@mui/material/Button";
@@ -222,6 +223,26 @@ function AddDialog({ open, setOpen, articles, handleAddEntree }) {
   );
 }
 
+
+function ConfirmDeleteDialog({ open, setOpen, handleDelete }) {
+  const close = () => {
+    setOpen(false);
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent>
+        <DialogContentText> Etes-vous sûr de vouloir supprimer cette sortie ?</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={close}>annuler</Button>
+        <Button onClick={handleDelete}>supprimer</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export default function Sorties() {
   const [articles, setArticles] = useState([]);
   const [rows, setRows] = useState([]);
@@ -229,6 +250,9 @@ export default function Sorties() {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [deleteSortieCode, setDeleteSortieCode] = useState(null);
+
 
   const columns = [
     {
@@ -283,6 +307,23 @@ export default function Sorties() {
       width: 200,
       align: "left",
       headerAlign: "left",
+    },
+    {
+      field: "actions",
+      type: "actions",
+      width: 100,
+      headerName: "opérations",
+      getActions: (params) => [
+        <GridActionsCellItem
+          key={"supprimer"}
+          icon={<DeleteIcon />}
+          label="supprimer"
+          onClick={() => {
+            setDeleteSortieCode(params.id);
+            setConfirmDialogOpen(true);
+          }}
+        />,
+      ],
     },
   ];
 
@@ -361,6 +402,28 @@ export default function Sorties() {
     setDisplayedRows(rows);
   };
 
+
+  const deleteSortie = async () => {
+    try {
+      const request = await fetch(`${BACKEND_URL}/sortie/${deleteSortieCode}`, {
+        method: "DELETE",
+      });
+
+      if (!request.ok) {
+        throw new Error("Il y avait une erreur!");
+      }
+
+      const response = await request.json();
+      console.log("delete response", response);
+      getAllSorties();
+      setConfirmDialogOpen(false);
+    } catch (err) {
+      console.log(err);
+      setErrorText(err.message);
+      setErrorDialogOpen(true);
+    }
+  };
+
   const handleFilter = (form) => (e) => {
     const filterRows = rows.filter((row) => {
       let article = true,
@@ -404,6 +467,12 @@ export default function Sorties() {
         setOpen={setAddDialogOpen}
         articles={articles}
         handleAddEntree={handleAddSortie}
+      />
+
+      <ConfirmDeleteDialog
+        open={confirmDialogOpen}
+        setOpen={setConfirmDialogOpen}
+        handleDelete={deleteSortie}
       />
 
       <DataGrid
