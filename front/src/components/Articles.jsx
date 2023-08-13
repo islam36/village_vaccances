@@ -47,6 +47,26 @@ function ErrorDialog({ open, setOpen, text }) {
   );
 }
 
+
+function ConfirmDeleteDialog({ open, setOpen, handleDelete }) {
+  const close = () => {
+    setOpen(false);
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent>
+        <DialogContentText>La suppression de cet article va supprimer tous les entrées et les sorties qui concerne cet article. Etes-vous sûr de vouloir supprimer cet article ?</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={close}>annuler</Button>
+        <Button onClick={handleDelete}>supprimer</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 function AddDialog({ open, setOpen, handleAdd, categories }) {
   const [form, setForm] = useState({
     nom: "",
@@ -119,16 +139,21 @@ function AddDialog({ open, setOpen, handleAdd, categories }) {
   );
 }
 
+
+
+
 export default function Articles() {
   const [rows, setRows] = useState([]);
   const [categories, setCategories] = useState([]);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [deleteArticleCode, setDeleteArticleCode] = useState(null);
   const [errorText, setErrorText] = useState("");
 
-  const deleteArticle = (code) => async () => {
+  const deleteArticle = async () => {
     try {
-      const request = await fetch(`${BACKEND_URL}/article/${code}`, {
+      const request = await fetch(`${BACKEND_URL}/article/${deleteArticleCode}`, {
         method: "DELETE",
       });
 
@@ -138,7 +163,8 @@ export default function Articles() {
 
       const response = await request.json();
       console.log("delete response", response);
-      setRows((oldRows) => oldRows.filter((row) => row.code !== code));
+      setRows((oldRows) => oldRows.filter((row) => row.code !== deleteArticleCode));
+      setConfirmDialogOpen(false);
     } catch (err) {
       console.log(err);
       setErrorText(err.message);
@@ -189,20 +215,23 @@ export default function Articles() {
       align: "left",
       headerAlign: "left",
     },
-    // {
-    //   field: "actions",
-    //   type: "actions",
-    //   width: 100,
-    //   headerName: "opérations",
-    //   getActions: (params) => [
-    //     <GridActionsCellItem
-    //       key={"supprimer"}
-    //       icon={<DeleteIcon />}
-    //       label="supprimer"
-    //       onClick={deleteArticle(params.id)}
-    //     />,
-    //   ],
-    // },
+    {
+      field: "actions",
+      type: "actions",
+      width: 100,
+      headerName: "opérations",
+      getActions: (params) => [
+        <GridActionsCellItem
+          key={"supprimer"}
+          icon={<DeleteIcon />}
+          label="supprimer"
+          onClick={() => {
+            setDeleteArticleCode(params.id);
+            setConfirmDialogOpen(true);
+          }}
+        />,
+      ],
+    },
   ];
 
   async function getAllCategories() {
@@ -288,6 +317,12 @@ export default function Articles() {
         setOpen={setAddDialogOpen}
         categories={categories}
         handleAdd={handleAddArticle}
+      />
+
+      <ConfirmDeleteDialog
+        open={confirmDialogOpen}
+        setOpen={setConfirmDialogOpen}
+        handleDelete={deleteArticle}
       />
 
       <DataGrid

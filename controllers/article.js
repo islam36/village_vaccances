@@ -47,22 +47,28 @@ exports.updateArticle = async (req, res) => {
 
 
 exports.deleteArticle = async (req, res) => {
-    const nb_entrees = await prisma.entree.count({
-        where: {
-            article_code: parseInt(req.params.code)
-        }
-    });
+    // const nb_entrees = await prisma.entree.count({
+    //     where: {
+    //         article_code: parseInt(req.params.code)
+    //     }
+    // });
 
-    const nb_sorties = await prisma.sortie.count({
-        where: {
-            article_code: parseInt(req.params.code)
-        }
-    });
+    // const nb_sorties = await prisma.sortie.count({
+    //     where: {
+    //         article_code: parseInt(req.params.code)
+    //     }
+    // });
 
-    if(nb_entrees + nb_sorties > 0) {
-        response(res, "Cet article ne peut pas être supprimé car il est associé à des entrées et sorties", null, 400);
-        return;
-    }
+    // if(nb_entrees + nb_sorties > 0) {
+    //     response(res, "Cet article ne peut pas être supprimé car il est associé à des entrées et sorties", null, 400);
+    //     return;
+    // }
+
+    await prisma.$executeRaw`delete from entree where article_code = ${req.params.code}`
+
+
+    await prisma.$executeRaw`delete from sortie where article_code = ${req.params.code}`
+
 
 
     const article = await prisma.article.delete({
