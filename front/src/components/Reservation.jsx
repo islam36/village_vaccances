@@ -4,11 +4,13 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 import Button from "@mui/material/Button";
 import { useNavigate, Routes, Route } from "react-router-dom";
 
+import Chalets from "./Chalets";
+
 const links = [
   {
     title: "Chalets",
     url: "chalets",
-    element: <div>chalets</div>,
+    element: <Chalets />,
   },
   {
     title: "Reservations",

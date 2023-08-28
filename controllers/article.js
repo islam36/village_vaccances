@@ -82,3 +82,20 @@ exports.deleteArticle = async (req, res) => {
 
     response(res, "article supprimé", article);
 }
+
+
+
+exports.getArticle = async (req, res) => {
+    const article = await prisma.article.findFirst({
+        where: {
+            code: parseInt(req.params.code)
+        },
+        include: {
+            categorie: true,
+            Entree: true,
+            Sortie: true,
+        },
+    });
+
+    response(res, "article trouvé", article);
+}

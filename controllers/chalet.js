@@ -11,7 +11,7 @@ exports.getAllChalet = async (req, res) => {
     const count = await prisma.reservation.count({
         where: {
             chalet_code: chalets[i].numero,
-            status: Reservation_status.valide,
+            status: Reservation_status.valide || Reservation_status.attente,
         }
     });
 
@@ -27,9 +27,11 @@ exports.addChalet = async (req, res) => {
     data: {
       numero: req.body.numero,
       type: req.body.type,
-      cout: req.body.cout,
+      cout: parseFloat(req.body.cout),
     },
   });
+
+  chalet.status = Chalet_status.libre;
 
   response(res, "chalet créé", chalet);
 };

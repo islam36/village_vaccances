@@ -16,10 +16,10 @@ const links = [
     title: "gestion stock",
     url: "stock",
   },
-  // {
-  //   title: "gestion reservation",
-  //   url: "reservations",
-  // },
+  {
+    title: "gestion reservation",
+    url: "reservations",
+  },
 ];
 
 const SECRET = "AJY7N-MK27Q-P4UFZ";

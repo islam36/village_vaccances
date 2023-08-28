@@ -59,6 +59,7 @@ model Reservation {
   code        Int      @id @default(autoincrement())
   date_debut  DateTime
   date_fin    DateTime
+  nom         String @default("")
   cout        Float
   status      String
   remarque    String
