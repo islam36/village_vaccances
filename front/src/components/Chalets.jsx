@@ -10,6 +10,7 @@ import ReserverIcon from "@mui/icons-material/EventAvailable";
 import { useState, useEffect } from "react";
 import { BACKEND_URL } from "../util/constants";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -18,6 +19,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
+import Tooltip from '@mui/material/Tooltip';
+import {  Typography } from "@mui/material";
 
 function CustomToolBar({ onClick }) {
   return (
@@ -57,7 +60,7 @@ function ConfirmDeleteDialog({ open, setOpen, handleDelete }) {
     <Dialog open={open}>
       <DialogTitle>Confirmation</DialogTitle>
       <DialogContent>
-        <DialogContentText>La suppression de ce chalet ?</DialogContentText>
+        <DialogContentText>La suppression de ce chalet va causer la suppression de toutes les réservations fait pour ce chalet. Voulez-vous supprimer ce chalet ?</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={close}>annuler</Button>
@@ -133,7 +136,203 @@ function AddDialog({ open, setOpen, handleAdd }) {
 
       <DialogActions>
         <Button onClick={handleCancel}>annuler</Button>
-        <Button onClick={handleAdd(form, setForm, initialState)} >ajouter</Button>
+        <Button onClick={handleAdd(form, setForm, initialState)}>
+          ajouter
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+function AddReservationDialog({
+  open,
+  setOpen,
+  handleAddReservation,
+  chalet_code,
+}) {
+  const initialState = {
+    nom: "",
+    date_debut: null,
+    date_fin: null,
+    cout: 0,
+    remarque: "",
+  };
+
+  const clientInitialState = {
+    nom: "",
+    prenom: "",
+    type_piece: "carte identité",
+    numero_piece: "",
+  };
+
+  const types_pieces = ["carte identité", "passeport", "permis"]
+
+  const [client, setClient] = useState(clientInitialState);
+
+  const [form, setForm] = useState(initialState);
+  const [clients, setClients] = useState([]);
+
+  const onChange = (e) => {
+    setForm(old => ({
+      ...old,
+      [e.target.name]: e.target.value 
+    }))
+  };
+
+  const onChangeClient = (e) => {
+      setClient(old => ({
+      ...old,
+      [e.target.name]: e.target.value 
+    }))
+  };
+
+  const addClient = () => {
+    if(client.nom.length < 1 || client.prenom.length < 1 || client.numero_piece.length < 1) {
+      return;
+    }
+
+    clients.push(client);
+    setClient(clientInitialState);
+  }
+
+  const deleteClient = (index) => () => {
+    const newClients = [...clients];
+    newClients.splice(index, 1);
+
+    setClients(newClients);
+  }
+
+
+  const handleCancel = () => {
+    setForm(initialState);
+    setClient(clientInitialState);
+    setClients([]);
+    setOpen(false);
+  }
+
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle>Ajouter une reservation pour le chalet: {chalet_code}</DialogTitle>
+      <DialogContent>
+        <Stack direction="column" sx={{ gap: "20px" }}>
+          <TextField
+            label="nom"
+            name="nom"
+            variant="filled"
+            value={form.nom}
+            onChange={onChange}
+          />
+
+          <TextField
+            label="date début"
+            name="date_debut"
+            variant="filled"
+            value={form.date_debut || ""}
+            onChange={onChange}
+            type="date"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+
+          <TextField
+            label="date fin"
+            name="date_fin"
+            variant="filled"
+            value={form.date_fin || ""}
+            onChange={onChange}
+            type="date"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+
+          <TextField
+            label="coût"
+            name="cout"
+            variant="filled"
+            value={form.cout}
+            onChange={onChange}
+            type="number"
+          />
+
+          <TextField
+            label="remarque"
+            name="nom"
+            variant="filled"
+            value={form.remarque}
+            onChange={onChange}
+          />
+
+          <Typography>Liste des clients</Typography>
+          <ul>
+            {clients.map((client, index) => (
+              <li key={index}>
+                {`${client.nom}  ${client.prenom} | ${client.type_piece}: ${client.numero_piece}`}
+                <IconButton  onClick={deleteClient(index)} >
+                  <DeleteIcon color="error" />
+                </IconButton>
+              </li>
+            ))}
+          </ul>
+
+          <Stack direction="column" sx={{ gap: "10px" }} >
+            <Stack direction="row" sx={{ gap: "10px" }} >
+              <TextField
+                label="nom"
+                name="nom"
+                variant="filled"
+                value={client.nom}
+                onChange={onChangeClient}
+              />
+
+              <TextField
+                label="prénom"
+                name="prenom"
+                variant="filled"
+                value={client.prenom}
+                onChange={onChangeClient}
+              />
+            </Stack>
+
+            <Stack direction="row" sx={{ gap: "10px" }} >
+              <TextField
+                label="type pièce"
+                name="type_piece"
+                variant="filled"
+                value={client.type_piece}
+                select
+                onChange={onChangeClient}
+                sx={{ width: "180px" }}
+              >
+                {
+                  types_pieces.map(type => (
+                    <MenuItem key={type} value={type}>{type}</MenuItem>
+                  ))
+                }
+              </TextField>
+
+              <TextField
+                label="numéro pièce"
+                name="numero_piece"
+                variant="filled"
+                value={client.numero_piece}
+                onChange={onChangeClient}
+              />
+            </Stack>
+          </Stack>
+          <Button icon={<AddIcon />} onClick={addClient} variant="contained">
+            ajouter client
+          </Button>
+
+          
+        </Stack>
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={handleCancel} >annuler</Button>
+        <Button onClick={handleAddReservation(form, setForm, initialState, clients, setClients, setClient, clientInitialState)} >ajouter</Button>
       </DialogActions>
     </Dialog>
   );
@@ -145,6 +344,27 @@ export default function Chalets() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [AddReservationDialogOpen, setAddReservationDialogOpen] = useState(false);
+  const [chaletCode, setChaletCode] = useState(null);
+  const [chaletDeleteCode, setChaletDeleteCode] = useState(null);
+
+  const deleteChalet = (code) => async () => {
+    try {
+      const request = await fetch(`${BACKEND_URL}/chalet/${code}`, {
+        method: "DELETE",
+      });
+
+      const response = await request.json();
+      console.log("chalet supprimée:", response);
+      getAllChalets();
+      setConfirmDialogOpen(false);
+    } catch (err) {
+      console.log(err);
+      setErrorText(err.message);
+      setErrorDialogOpen(true);
+    }
+  }
+
 
   const columns = [
     {
@@ -194,8 +414,12 @@ export default function Chalets() {
         const list = [
           <GridActionsCellItem
             label="supprimer"
-            icon={<DeleteIcon />}
+            icon={<Tooltip title="supprimer" ><DeleteIcon /></Tooltip>}
             key="supprimer"
+            onClick={() => {
+              setChaletDeleteCode(params.row.numero);
+              setConfirmDialogOpen(true);
+            }}
           />,
         ];
 
@@ -203,8 +427,12 @@ export default function Chalets() {
           list.push(
             <GridActionsCellItem
               label="reserver"
-              icon={<ReserverIcon />}
+              icon={<Tooltip title="réserver" ><ReserverIcon /></Tooltip>}
               key="reserver"
+              onClick={() => {
+                setChaletCode(params.row.numero);
+                setAddReservationDialogOpen(true);
+              }}
             />
           );
         }
@@ -220,6 +448,43 @@ export default function Chalets() {
       const response = await request.json();
       console.log("chalets:", response);
       setRows(response.data);
+    } catch (err) {
+      console.log(err);
+      setErrorText(err.message);
+      setErrorDialogOpen(true);
+    }
+  }
+
+
+  const addReservation = (form, setForm, initialState, clients, setClients, setClient, clientInitialState) => async () => {
+    try {
+      if (form.nom.length < 1 || form.cout < 1 || form.date_debut == null || form.date_fin == null || clients.length < 1) {
+        throw new Error("Il faut remplir tout les champs");
+      }
+
+      const data = {
+        ...form,
+        chalet_code: chaletCode,
+        clients,
+      }
+
+      const request = await fetch(`${BACKEND_URL}/reservation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const response = await request.json();
+
+      console.log("new reservation:", response);
+
+      setForm(initialState);
+      setClient(clientInitialState);
+      setClients([]);
+      getAllChalets();
+      setAddReservationDialogOpen(false);
     } catch (err) {
       console.log(err);
       setErrorText(err.message);
@@ -271,11 +536,23 @@ export default function Chalets() {
         text={errorText}
       />
 
-      <AddDialog open={addDialogOpen} setOpen={setAddDialogOpen} handleAdd={addChalet} />
+      <AddDialog
+        open={addDialogOpen}
+        setOpen={setAddDialogOpen}
+        handleAdd={addChalet}
+      />
 
       <ConfirmDeleteDialog
         open={confirmDialogOpen}
         setOpen={setConfirmDialogOpen}
+        handleDelete={deleteChalet(chaletDeleteCode)}
+      />
+
+      <AddReservationDialog
+        open={AddReservationDialogOpen}
+        setOpen={setAddReservationDialogOpen}
+        chalet_code={chaletCode}
+        handleAddReservation={addReservation}
       />
 
       <DataGrid

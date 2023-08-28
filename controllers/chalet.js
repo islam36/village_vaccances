@@ -5,19 +5,24 @@ const { Reservation_status, Chalet_status } = require("../util/constants");
 exports.getAllChalet = async (req, res) => {
   const chalets = await prisma.chalet.findMany();
 
-
-  for(let i = 0; i < chalets.length; i++) {
-
+  for (let i = 0; i < chalets.length; i++) {
     const count = await prisma.reservation.count({
-        where: {
+      where: {
+        OR: [
+          {
             chalet_code: chalets[i].numero,
-            status: Reservation_status.valide || Reservation_status.attente,
-        }
+            status: Reservation_status.attente,
+          },
+          {
+            chalet_code: chalets[i].numero,
+            status: Reservation_status.valide
+          }
+        ],
+      },
     });
 
-    chalets[i].status = (count > 0) ? Chalet_status.occupe : Chalet_status.libre;
+    chalets[i].status = count > 0 ? Chalet_status.occupe : Chalet_status.libre;
   }
-
 
   response(res, "tous les chalets", chalets);
 };
@@ -35,3 +40,23 @@ exports.addChalet = async (req, res) => {
 
   response(res, "chalet créé", chalet);
 };
+
+
+exports.deleteChalet = async (req, res) => {
+  const reservations = await prisma.reservation.findMany({
+    where: {
+      chalet_code: req.params.code
+    }
+  });
+
+  for(let i = 0; i < reservations.length; i++) {
+    await prisma.$executeRaw`delete from Client where code_res = ${reservations[i].code}`;
+    await prisma.$executeRaw`delete from Reservation where code = ${reservations[i].code}`;
+  }
+
+  await prisma.$executeRaw`delete from Chalet where numero = ${req.params.code}`;
+
+  response(res, "chalet supprimé", null);
+
+
+}

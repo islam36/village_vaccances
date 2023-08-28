@@ -3,12 +3,14 @@ const {
     getAllReservation,
     addReservation,
     getReservation,
-    updateReservation
+    updateReservationStatus,
+    deleteReservation
 } = require("../controllers/reservation");
 
 router.get("/", getAllReservation);
 router.post("/", addReservation);
 router.get("/:code", getReservation);
-router.put("/:code", updateReservation);
+router.put("/status/:code", updateReservationStatus);
+router.delete("/:code", deleteReservation);
 
 module.exports = router;

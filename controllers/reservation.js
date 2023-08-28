@@ -5,9 +5,14 @@ const { Reservation_status } = require("../util/constants")
 exports.getAllReservation = async (req, res) => {
     const reservations = await prisma.reservation.findMany({
         include: {
-            chalet: true
+            chalet: true,
+            Client: true,
         }
     });
+
+    reservations.forEach(r => {
+        r.nom = r.Client[0].nom 
+    })
 
     response(res, "tous les reservations", reservations);
 }
@@ -19,24 +24,28 @@ exports.addReservation = async (req, res) => {
         data: {
             date_debut: new Date(req.body.date_debut),
             date_fin: new Date(req.body.date_fin),
-            cout: req.body.cout,
+            // nom: req.body.nom,
+            cout: parseFloat(req.body.cout),
             status: Reservation_status.attente,
             remarque: req.body.remarque,
-            chalet_code: req.body.chalet_code
+            chalet_code: req.body.chalet_code,
+            Client: {
+                create: [...req.body.clients]
+            }
         }
     });
 
-    req.body.clients.forEach(client => {
-        client.code_res = reservation.code;
-    })
+    // req.body.clients.forEach(client => {
+    //     client.code_res = reservation.code;
+    // })
 
-    const requests = req.body.clients.map(client => {
-        return prisma.client.create({
-            data: client
-        })
-    });
+    // const requests = req.body.clients.map(client => {
+    //     return prisma.client.create({
+    //         data: client
+    //     })
+    // });
 
-    await Promise.all(requests);
+    // await Promise.all(requests);
 
     response(res, "reservation crée", reservation);
 }
@@ -48,47 +57,47 @@ exports.getReservation = async (req, res) => {
             code: parseInt(req.params.code)
         },
         include: {
-            chalet: true
+            chalet: true,
+            Client: true,
         }
     });
 
 
-    const clients = await prisma.client.findMany({
-        where: {
-            code_res: reservation.code
-        }
-    });
+    // const clients = await prisma.client.findMany({
+    //     where: {
+    //         code_res: reservation.code
+    //     }
+    // });
 
-    reservation.clients = clients;
+    // reservation.clients = clients;
 
     response(res, "reservation trouvée", reservation);
 }
 
 
-exports.updateReservation = async (req, res) => {
+exports.updateReservationStatus = async (req, res) => {
     const reservation = await prisma.reservation.update({
         where: {
             code: parseInt(req.params.code)
         },
         data: {
-            date_debut: new Date(req.body.date_debut),
-            date_fin: new Date(req.body.date_fin),
-            cout: req.body.cout,
             status: req.body.status,
-            remarque: req.body.remarque,
-            chalet_code: req.body.chalet_code
         }
     });
 
-
-
-    const clients = await prisma.client.findMany({
-        where: {
-            code_res: reservation.code
-        }
-    });
-
-    reservation.clients = clients;
 
     response(res, "reservation modifiée", reservation);
+}
+
+
+exports.deleteReservation = async (req, res) => {
+    await prisma.$executeRaw`delete from Client where code_res = ${req.params.code}`;
+
+    const reservation = await prisma.reservation.delete({
+        where: {
+            code: parseInt(req.params.code)
+        }
+    });
+
+    response(res, "réservation supprimée", reservation);
 }

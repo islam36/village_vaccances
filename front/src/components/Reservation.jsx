@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import { useNavigate, Routes, Route } from "react-router-dom";
 
 import Chalets from "./Chalets";
+import Reservations from "./Reservations";
 
 const links = [
   {
@@ -15,7 +16,7 @@ const links = [
   {
     title: "Reservations",
     url: "reservations",
-    element: <div>reservations</div>,
+    element: <Reservations/>,
   },
 ];
 

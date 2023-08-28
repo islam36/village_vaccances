@@ -17,6 +17,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
+import Tooltip from '@mui/material/Tooltip';
 
 function Filters({ articles, onClick, reset }) {
   const [form, setForm] = useState({
@@ -377,7 +378,7 @@ export default function Entrees() {
       getActions: (params) => [
         <GridActionsCellItem
           key={"supprimer"}
-          icon={<DeleteIcon />}
+          icon={<Tooltip title="supprimer"><DeleteIcon /></Tooltip>}
           label="supprimer"
           onClick={() => {
             setDeleteEntreeCode(params.id);
