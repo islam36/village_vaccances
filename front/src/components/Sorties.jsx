@@ -289,7 +289,13 @@ export default function Sorties() {
       align: "left",
       headerAlign: "left",
       valueGetter: (params) => new Date(params.row.date),
-      renderCell: (params) => <>{params.row.date.toString().slice(0, 10)}</>,
+      renderCell: (params) => {
+        const date = new Date(params.row.date);
+        
+        return (
+          <>{`${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`}</>
+        );
+      },
     },
     {
       field: "quantite",

@@ -17,7 +17,8 @@ exports.addArticle = async (req, res) => {
         data: {
             nom: req.body.nom,
             stock: req.body.stock,
-            categorie_code: req.body.categorie_code
+            categorie_code: req.body.categorie_code,
+            limite: parseFloat(req.body.limite)
         },
         include: {
             categorie: true

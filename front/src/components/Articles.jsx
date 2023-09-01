@@ -17,7 +17,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip from "@mui/material/Tooltip";
+import { Typography } from "@mui/material";
 
 function CustomToolBar({ onClick }) {
   return (
@@ -48,17 +49,20 @@ function ErrorDialog({ open, setOpen, text }) {
   );
 }
 
-
 function ConfirmDeleteDialog({ open, setOpen, handleDelete }) {
   const close = () => {
     setOpen(false);
-  }
+  };
 
   return (
     <Dialog open={open}>
       <DialogTitle>Confirmation</DialogTitle>
       <DialogContent>
-        <DialogContentText>La suppression de cet article va supprimer tous les entrées et les sorties qui concerne cet article. Etes-vous sûr de vouloir supprimer cet article ?</DialogContentText>
+        <DialogContentText>
+          La suppression de cet article va supprimer tous les entrées et les
+          sorties qui concerne cet article. Etes-vous sûr de vouloir supprimer
+          cet article ?
+        </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={close}>annuler</Button>
@@ -73,10 +77,15 @@ function AddDialog({ open, setOpen, handleAdd, categories }) {
     nom: "",
     stock: 0,
     categorie_code: 1,
+    limite: 1,
   });
 
   const onChange = (e) => {
-    if(e.target.name === "stock" && e.target.value < 0) return;
+    if (
+      (e.target.name === "stock" || e.target.name === "limite") &&
+      e.target.value < 0
+    )
+      return;
 
     setForm((old) => ({
       ...old,
@@ -89,6 +98,7 @@ function AddDialog({ open, setOpen, handleAdd, categories }) {
       nom: "",
       stock: 0,
       categorie_code: 1,
+      limite: 1,
     });
     setOpen(false);
   };
@@ -112,6 +122,15 @@ function AddDialog({ open, setOpen, handleAdd, categories }) {
             variant="filled"
             type="number"
             value={form.stock}
+            onChange={onChange}
+          />
+
+          <TextField
+            label="quantité minimale limite"
+            name="limite"
+            variant="filled"
+            type="number"
+            value={form.limite}
             onChange={onChange}
           />
 
@@ -140,9 +159,6 @@ function AddDialog({ open, setOpen, handleAdd, categories }) {
   );
 }
 
-
-
-
 export default function Articles() {
   const [rows, setRows] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -154,9 +170,12 @@ export default function Articles() {
 
   const deleteArticle = async () => {
     try {
-      const request = await fetch(`${BACKEND_URL}/article/${deleteArticleCode}`, {
-        method: "DELETE",
-      });
+      const request = await fetch(
+        `${BACKEND_URL}/article/${deleteArticleCode}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!request.ok) {
         throw new Error("Il y avait une erreur!");
@@ -164,7 +183,9 @@ export default function Articles() {
 
       const response = await request.json();
       console.log("delete response", response);
-      setRows((oldRows) => oldRows.filter((row) => row.code !== deleteArticleCode));
+      setRows((oldRows) =>
+        oldRows.filter((row) => row.code !== deleteArticleCode)
+      );
       setConfirmDialogOpen(false);
     } catch (err) {
       console.log(err);
@@ -209,13 +230,49 @@ export default function Articles() {
     },
     {
       field: "stock",
-      headerName: "stock",
+      headerName: "quantité actuelle en stock",
       editable: false,
       type: "number",
-      width: 100,
+      width: 200,
       align: "left",
       headerAlign: "left",
+      renderCell: (params) => (
+        <Typography
+          variant="inherit"
+          component="span"
+          color={params.row.stock <= params.row.limite ? "erorr" : "inherit"}
+        >
+          {params.row.stock}
+        </Typography>
+      ),
     },
+    {
+      field: "status",
+      headerName: "status",
+      editable: false,
+      type: "string",
+      width: 150,
+      align: "left",
+      headerAlign: "left",
+      renderCell: (params) => (
+        <Typography
+          variant="inherit"
+          component="span"
+          sx={{color: params.row.stock <= params.row.limite ? "#d32f2f" : "#4caf50"}}
+        >
+          {params.row.stock <= params.row.limite ? "en rupture de stock" : "disponible"}
+        </Typography>
+      ),
+    },
+    // {
+    //   field: "limite",
+    //   headerName: "quantité minimale limite",
+    //   editable: false,
+    //   type: "number",
+    //   width: 100,
+    //   align: "left",
+    //   headerAlign: "left",
+    // },
     {
       field: "actions",
       type: "actions",
@@ -224,7 +281,11 @@ export default function Articles() {
       getActions: (params) => [
         <GridActionsCellItem
           key={"supprimer"}
-          icon={<Tooltip title="supprimer"><DeleteIcon /></Tooltip>}
+          icon={
+            <Tooltip title="supprimer">
+              <DeleteIcon />
+            </Tooltip>
+          }
           label="supprimer"
           onClick={() => {
             setDeleteArticleCode(params.id);
@@ -267,31 +328,29 @@ export default function Articles() {
 
   const handleAddArticle = (newArticle, setForm) => async () => {
     try {
-      if(newArticle.nom == "") {
-        throw new Error("Il faut remplir tous les champs")
+      if (newArticle.nom == "") {
+        throw new Error("Il faut remplir tous les champs");
       }
 
       console.log("new article", newArticle);
       const request = await fetch(`${BACKEND_URL}/article`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(newArticle),
       });
 
       const response = await request.json();
       console.log("new article", response);
-      setRows(old => [
-        ...old,
-        response.data
-      ]);
+      setRows((old) => [...old, response.data]);
 
       setAddDialogOpen(false);
       setForm({
         nom: "",
         stock: 0,
         categorie_code: 1,
+        limite: 1,
       });
     } catch (err) {
       console.log(err);
@@ -345,7 +404,7 @@ export default function Articles() {
           toolbarExportLabel: "Exporter",
           toolbarExportCSV: "Télécharger CSV",
           toolbarExportPrint: "Imprimer",
-          noRowsLabel: 'aucun article',
+          noRowsLabel: "aucun article",
         }}
         slots={{
           toolbar: CustomToolBar,

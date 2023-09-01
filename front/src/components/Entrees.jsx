@@ -590,29 +590,34 @@ export default function Entrees() {
           </TableHead>
 
           <TableBody>
-            {displayedRows.map((row) => (
-              <TableRow key={row.entree_code}>
-                <TableCell>{row.entree_code} </TableCell>
-                <TableCell>{row.date.toString().slice(0, 10)}</TableCell>
-                <TableCell>{row.article.nom} </TableCell>
-                <TableCell>{row.quantite}</TableCell>
-                <TableCell>{row.prix_unitaire}</TableCell>
-                <TableCell>{row.cout_supp}</TableCell>
-                <TableCell>{row.prix_total} </TableCell>
-                <TableCell>{row.fournisseur} </TableCell>
-                <TableCell>{row.remarque} </TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={() => {
-                      setDeleteEntreeCode(row.entree_code);
-                      setConfirmDialogOpen(true);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+            {displayedRows.map((row) => {
+              const date = new Date(row.date);
+              console.log(date);
+
+              return (
+                <TableRow key={row.entree_code}>
+                  <TableCell>{row.entree_code} </TableCell>
+                  <TableCell>{`${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`}</TableCell>
+                  <TableCell>{row.article.nom} </TableCell>
+                  <TableCell>{row.quantite}</TableCell>
+                  <TableCell>{row.prix_unitaire}</TableCell>
+                  <TableCell>{row.cout_supp}</TableCell>
+                  <TableCell>{row.prix_total} </TableCell>
+                  <TableCell>{row.fournisseur} </TableCell>
+                  <TableCell>{row.remarque} </TableCell>
+                  <TableCell>
+                    <IconButton
+                      onClick={() => {
+                        setDeleteEntreeCode(row.entree_code);
+                        setConfirmDialogOpen(true);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
 
             <TableRow key="total">
               <TableCell

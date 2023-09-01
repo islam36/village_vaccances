@@ -14,6 +14,7 @@ model Article {
   code           Int       @id @default(autoincrement())
   nom            String
   categorie_code Int
+  limite Float
   categorie      Categorie @relation(fields: [categorie_code], references: [code])
   stock          Float
   Entree         Entree[]
