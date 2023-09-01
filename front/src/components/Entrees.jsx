@@ -27,9 +27,10 @@ import {
   TableRow,
   TableCell,
   Paper,
+  IconButton,
 } from "@mui/material";
 
-function Filters({ articles, onClick, reset }) {
+function Filters({ articles, onClick, reset, onAdd }) {
   const [form, setForm] = useState({
     article: Number.MAX_VALUE,
     debut: null,
@@ -57,6 +58,9 @@ function Filters({ articles, onClick, reset }) {
 
   return (
     <Stack direction="row" sx={{ gap: "15px" }}>
+      <Button onClick={onAdd} startIcon={<AddIcon />}>
+        ajouter
+      </Button>
       <TextField
         label="article"
         name="article"
@@ -561,11 +565,12 @@ export default function Entrees() {
         handleDelete={deleteEntree}
       />
 
-      <TableContainer component={Paper} sx={{ mt: "20px" }} >
+      <TableContainer component={Paper} sx={{ mt: "20px" }}>
         <Filters
           articles={articles}
           onClick={handleFilter}
           reset={handleReset}
+          onAdd={() => setAddDialogOpen(true)}
         />
 
         <Table>
@@ -579,13 +584,14 @@ export default function Entrees() {
               <TableCell>coût supplémentaire</TableCell>
               <TableCell>prix total</TableCell>
               <TableCell>fournisseur</TableCell>
+              <TableCell>remarque</TableCell>
               <TableCell>actions</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
             {displayedRows.map((row) => (
-              <TableRow key={row.entree_code} >
+              <TableRow key={row.entree_code}>
                 <TableCell>{row.entree_code} </TableCell>
                 <TableCell>{row.date.toString().slice(0, 10)}</TableCell>
                 <TableCell>{row.article.nom} </TableCell>
@@ -594,16 +600,30 @@ export default function Entrees() {
                 <TableCell>{row.cout_supp}</TableCell>
                 <TableCell>{row.prix_total} </TableCell>
                 <TableCell>{row.fournisseur} </TableCell>
-                <TableCell></TableCell>
+                <TableCell>{row.remarque} </TableCell>
+                <TableCell>
+                  <IconButton
+                    onClick={() => {
+                      setDeleteEntreeCode(row.entree_code);
+                      setConfirmDialogOpen(true);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
 
             <TableRow key="total">
-              <TableCell colSpan={7} align="right"  >coût total: {total} </TableCell>
+              <TableCell
+                colSpan={7}
+                align="right"
+                sx={{ transform: "translateX(-70px)" }}
+              >
+                coût total: {total}{" "}
+              </TableCell>
             </TableRow>
           </TableBody>
-
-
         </Table>
       </TableContainer>
     </>
