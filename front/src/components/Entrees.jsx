@@ -5,7 +5,7 @@ import {
   GridActionsCellItem,
 } from "@mui/x-data-grid";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete"
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useState, useEffect } from "react";
 import { BACKEND_URL } from "../util/constants";
 import Button from "@mui/material/Button";
@@ -17,7 +17,17 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip from "@mui/material/Tooltip";
+import {
+  Typography,
+  TableContainer,
+  Table,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+  Paper,
+} from "@mui/material";
 
 function Filters({ articles, onClick, reset }) {
   const [form, setForm] = useState({
@@ -35,7 +45,6 @@ function Filters({ articles, onClick, reset }) {
     console.log("filter change:", form);
   };
 
-
   const resetForm = (e) => {
     reset();
 
@@ -43,11 +52,11 @@ function Filters({ articles, onClick, reset }) {
       article: Number.MAX_VALUE,
       debut: null,
       fin: null,
-    })
-  }
+    });
+  };
 
   return (
-    <Stack direction="row" sx={{ gap: "15px" }} >
+    <Stack direction="row" sx={{ gap: "15px" }}>
       <TextField
         label="article"
         name="article"
@@ -56,7 +65,9 @@ function Filters({ articles, onClick, reset }) {
         onChange={onChange}
         select
       >
-        <MenuItem key="" value={Number.MAX_VALUE}>{"<vide>"}</MenuItem>
+        <MenuItem key="" value={Number.MAX_VALUE}>
+          {"<vide>"}
+        </MenuItem>
 
         {articles.map((item) => (
           <MenuItem key={item.code} value={item.code}>
@@ -64,8 +75,6 @@ function Filters({ articles, onClick, reset }) {
           </MenuItem>
         ))}
       </TextField>
-
-     
 
       <TextField
         label="date debut"
@@ -91,8 +100,8 @@ function Filters({ articles, onClick, reset }) {
         }}
       />
 
-      <Button onClick={onClick(form)} >filter</Button>
-      <Button onClick={resetForm} >vider</Button>
+      <Button onClick={onClick(form)}>filter</Button>
+      <Button onClick={resetForm}>vider</Button>
     </Stack>
   );
 }
@@ -254,13 +263,16 @@ function AddDialog({ open, setOpen, articles, handleAddEntree }) {
 function ConfirmDeleteDialog({ open, setOpen, handleDelete }) {
   const close = () => {
     setOpen(false);
-  }
+  };
 
   return (
     <Dialog open={open}>
       <DialogTitle>Confirmation</DialogTitle>
       <DialogContent>
-        <DialogContentText> Etes-vous sûr de vouloir supprimer cette entrée ?</DialogContentText>
+        <DialogContentText>
+          {" "}
+          Etes-vous sûr de vouloir supprimer cette entrée ?
+        </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={close}>annuler</Button>
@@ -378,7 +390,11 @@ export default function Entrees() {
       getActions: (params) => [
         <GridActionsCellItem
           key={"supprimer"}
-          icon={<Tooltip title="supprimer"><DeleteIcon /></Tooltip>}
+          icon={
+            <Tooltip title="supprimer">
+              <DeleteIcon />
+            </Tooltip>
+          }
           label="supprimer"
           onClick={() => {
             setDeleteEntreeCode(params.id);
@@ -487,37 +503,42 @@ export default function Entrees() {
 
   const handleReset = (e) => {
     setDisplayedRows(rows);
-  }
-
+  };
 
   const handleFilter = (form) => (e) => {
-    const filterRows = rows.filter(row => {
-      let article = true, debut = true, fin = true;
+    const filterRows = rows.filter((row) => {
+      let article = true,
+        debut = true,
+        fin = true;
 
-      if(form.article !== Number.MAX_VALUE) {
+      if (form.article !== Number.MAX_VALUE) {
         article = form.article === row.article_code;
       }
 
-      if(form.debut != null) {
+      if (form.debut != null) {
         debut = row.date >= form.debut;
-      } 
-
-      if(form.fin != null) {
-        fin = row.date <= form.fin;
       }
 
+      if (form.fin != null) {
+        fin = row.date <= form.fin;
+      }
 
       return article && debut && fin;
     });
 
     console.log("filtered rows:", filterRows);
     setDisplayedRows(filterRows);
-  }
+  };
 
   useEffect(() => {
     getAllArticles();
     getAllEntrees();
   }, []);
+
+  let total = 0;
+  displayedRows.forEach((row) => {
+    total += row.prix_total;
+  });
 
   return (
     <>
@@ -540,39 +561,51 @@ export default function Entrees() {
         handleDelete={deleteEntree}
       />
 
-      <DataGrid
-        sx={{
-          m: "20px",
-          "@media print": {
-            ".MuiDataGrid-toolbarContainer *": { display: "none" },
-          },
-        }}
-        columns={columns}
-        rows={displayedRows}
-        getRowId={(row) => row.entree_code}
-        disableRowSelectionOnClick
-        autoHeight
-        density="compact"
-        disableColumnMenu
-        localeText={{
-          toolbarExport: "Exporter",
-          toolbarExportLabel: "Exporter",
-          toolbarExportCSV: "Télécharger CSV",
-          toolbarExportPrint: "Imprimer",
-          noRowsLabel: "aucune entrée",
-        }}
-        slots={{
-          toolbar: CustomToolBar,
-        }}
-        slotProps={{
-          toolbar: {
-            onClick: handleClickAddBtn,
-            articles: articles,
-            handleFilter,
-            handleReset,
-          },
-        }}
-      />
+      <TableContainer component={Paper} sx={{ mt: "20px" }} >
+        <Filters
+          articles={articles}
+          onClick={handleFilter}
+          reset={handleReset}
+        />
+
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>numero</TableCell>
+              <TableCell>date</TableCell>
+              <TableCell>article</TableCell>
+              <TableCell>quantité</TableCell>
+              <TableCell>prix unitaire</TableCell>
+              <TableCell>coût supplémentaire</TableCell>
+              <TableCell>prix total</TableCell>
+              <TableCell>fournisseur</TableCell>
+              <TableCell>actions</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {displayedRows.map((row) => (
+              <TableRow key={row.entree_code} >
+                <TableCell>{row.entree_code} </TableCell>
+                <TableCell>{row.date.toString().slice(0, 10)}</TableCell>
+                <TableCell>{row.article.nom} </TableCell>
+                <TableCell>{row.quantite}</TableCell>
+                <TableCell>{row.prix_unitaire}</TableCell>
+                <TableCell>{row.cout_supp}</TableCell>
+                <TableCell>{row.prix_total} </TableCell>
+                <TableCell>{row.fournisseur} </TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            ))}
+
+            <TableRow key="total">
+              <TableCell colSpan={7} align="right"  >coût total: {total} </TableCell>
+            </TableRow>
+          </TableBody>
+
+
+        </Table>
+      </TableContainer>
     </>
   );
 }
